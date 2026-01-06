@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: ecommerce-app
+  
+  datasource:
+    url: jdbc:h2:mem:ecommerce
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    hikari:
+      maximum-pool-size: 10
+  
+  jpa:
+    hibernate:
+      ddl-auto: none    
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000
+      cache-null-values: false
+  
+  data:
+     redis:
+       port: 12360
+       password: 09TU64oCryCgrFm0aq3yh2bjAAzWgt7j
+       host: redis-12360.c212.ap-south-1-1.ec2.cloud.redislabs.com
+
+  
+  security:
+    user:
+      name: admin
+      password: admin
+
+server:
+  port: 8080
+
+jwt:
+  secret: yZ9z7U3N3F9H1V7Yc0F+YQfY6n9Ew3V9xk1s0mPqYl9dR2F6P2kS9g==
+  expiration: 86400000 # 24 hours
+
+subscription:
+  monthly-price: 49.00
+  grace-period-days: 1
+
+logging:
+  level:
+    com.ecommerce: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,beans,cache
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
