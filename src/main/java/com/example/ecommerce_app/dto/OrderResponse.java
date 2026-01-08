@@ -2,9 +2,8 @@ package com.example.ecommerce_app.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
-import com.example.ecommerce_app.enums.OrderStatus;
+import com.example.ecommerce_app.entity.Order.OrderStatus;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,17 +18,6 @@ public class OrderResponse {
     private BigDecimal finalAmount;
     private OrderStatus status;
     private LocalDateTime createdAt;
-    private List<OrderItemResponse> items;
+   
     private String username;
-}
-
-@Data
-@Builder
-class OrderItemResponse {
-    private Long productId;
-    private String productName;
-    private Integer quantity;
-    private BigDecimal unitPrice;
-    private BigDecimal discountApplied;
-    private BigDecimal totalPrice;
 }

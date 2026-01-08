@@ -1,42 +1,28 @@
 package com.example.ecommerce_app.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@SQLDelete(sql = "UPDATE products SET is_deleted = true WHERE id = ?")
-@Where(clause = "is_deleted = false")
 public class Product {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String name;
     
-    @Column(columnDefinition = "TEXT")
     private String description;
     
     @Column(nullable = false, precision = 10, scale = 2)
@@ -45,7 +31,7 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
     
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted")
     private Boolean isDeleted = false;
     
     @CreationTimestamp

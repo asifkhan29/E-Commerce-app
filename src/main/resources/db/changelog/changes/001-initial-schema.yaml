@@ -1,7 +1,8 @@
 databaseChangeLog:
+
   - changeSet:
-      id: 001-create-users-table
-      author: system
+      id: 1
+      author: ecommerce
       changes:
         - createTable:
             tableName: users
@@ -13,47 +14,69 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+
               - column:
                   name: username
                   type: VARCHAR(50)
                   constraints:
-                    unique: true
                     nullable: false
-              - column:
-                  name: email
-                  type: VARCHAR(100)
-                  constraints:
                     unique: true
-                    nullable: false
+
               - column:
                   name: password
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+
+              - column:
+                  name: email
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+
               - column:
                   name: role
                   type: VARCHAR(20)
                   constraints:
                     nullable: false
+
               - column:
-                  name: is_premium
+                  name: is_active
                   type: BOOLEAN
-                  defaultValueBoolean: false
-              - column:
-                  name: upi_id
-                  type: VARCHAR(100)
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
               - column:
                   name: created_at
                   type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
               - column:
                   name: updated_at
                   type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            tableName: users
+            indexName: idx_users_username
+            columns:
+              - column:
+                  name: username
+
+        - createIndex:
+            tableName: users
+            indexName: idx_users_email
+            columns:
+              - column:
+                  name: email
 
   - changeSet:
-      id: 002-create-products-table
-      author: system
+      id: 2
+      author: ecommerce
       changes:
         - createTable:
             tableName: products
@@ -65,40 +88,72 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+
               - column:
                   name: name
                   type: VARCHAR(100)
                   constraints:
                     nullable: false
+
               - column:
                   name: description
                   type: TEXT
+
               - column:
                   name: price
                   type: DECIMAL(10,2)
                   constraints:
                     nullable: false
+
               - column:
                   name: quantity
-                  type: INTEGER
+                  type: INT
                   constraints:
                     nullable: false
+
               - column:
                   name: is_deleted
                   type: BOOLEAN
                   defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
               - column:
                   name: created_at
                   type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
               - column:
                   name: updated_at
                   type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            tableName: products
+            indexName: idx_products_name
+            columns:
+              - column:
+                  name: name
+
+        - createIndex:
+            tableName: products
+            indexName: idx_products_price
+            columns:
+              - column:
+                  name: price
+
+        - createIndex:
+            tableName: products
+            indexName: idx_products_is_deleted
+            columns:
+              - column:
+                  name: is_deleted
 
   - changeSet:
-      id: 003-create-orders-table
-      author: system
+      id: 3
+      author: ecommerce
       changes:
         - createTable:
             tableName: orders
@@ -110,49 +165,71 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+
               - column:
                   name: user_id
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_order_user
-                    references: users(id)
+                    foreignKeyName: fk_orders_user_id
+                    referencedTableName: users
+                    referencedColumnNames: id
+
               - column:
-                  name: order_number
-                  type: VARCHAR(50)
-                  constraints:
-                    unique: true
-                    nullable: false
-              - column:
-                  name: total_amount
+                  name: order_total
                   type: DECIMAL(10,2)
                   constraints:
                     nullable: false
+
               - column:
                   name: discount_amount
                   type: DECIMAL(10,2)
-                  defaultValueNumeric: 0
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+
               - column:
                   name: final_amount
                   type: DECIMAL(10,2)
                   constraints:
                     nullable: false
+
               - column:
                   name: status
                   type: VARCHAR(20)
-                  defaultValue: PENDING
+                  constraints:
+                    nullable: false
+
               - column:
                   name: created_at
                   type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_user_id
+            columns:
               - column:
-                  name: updated_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  name: user_id
+
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_status
+            columns:
+              - column:
+                  name: status
+
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_created_at
+            columns:
+              - column:
+                  name: created_at
 
   - changeSet:
-      id: 004-create-order-items-table
-      author: system
+      id: 4
+      author: ecommerce
       changes:
         - createTable:
             tableName: order_items
@@ -164,198 +241,148 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+
               - column:
                   name: order_id
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_order_item_order
-                    references: orders(id)
+                    foreignKeyName: fk_order_items_order_id
+                    referencedTableName: orders
+                    referencedColumnNames: id
+
               - column:
                   name: product_id
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_order_item_product
-                    references: products(id)
+                    foreignKeyName: fk_order_items_product_id
+                    referencedTableName: products
+                    referencedColumnNames: id
+
               - column:
                   name: quantity
-                  type: INTEGER
+                  type: INT
                   constraints:
                     nullable: false
+
               - column:
                   name: unit_price
                   type: DECIMAL(10,2)
                   constraints:
                     nullable: false
+
               - column:
                   name: discount_applied
                   type: DECIMAL(10,2)
-                  defaultValueNumeric: 0
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+
               - column:
                   name: total_price
                   type: DECIMAL(10,2)
                   constraints:
                     nullable: false
 
-  - changeSet:
-      id: 005-create-subscriptions-table
-      author: system
-      changes:
-        - createTable:
-            tableName: subscriptions
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_order_id
             columns:
               - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
+                  name: order_id
+
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_product_id
+            columns:
               - column:
-                  name: user_id
-                  type: BIGINT
-                  constraints:
-                    nullable: false
-                    unique: true
-                    foreignKeyName: fk_subscription_user
-                    references: users(id)
-              - column:
-                  name: subscription_id
-                  type: VARCHAR(100)
-                  constraints:
-                    unique: true
-              - column:
-                  name: status
-                  type: VARCHAR(20)
-                  defaultValue: ACTIVE
-              - column:
-                  name: start_date
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: false
-              - column:
-                  name: next_payment_date
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: false
-              - column:
-                  name: end_date
-                  type: TIMESTAMP
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
-              - column:
-                  name: updated_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  name: product_id
 
   - changeSet:
-      id: 006-create-payments-table
-      author: system
+      id: 5
+      author: ecommerce
       changes:
-        - createTable:
-            tableName: payments
+        - insert:
+            tableName: users
             columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: subscription_id
-                  type: BIGINT
-                  constraints:
-                    nullable: false
-                    foreignKeyName: fk_payment_subscription
-                    references: subscriptions(id)
-              - column:
-                  name: razorpay_order_id
-                  type: VARCHAR(100)
-                  constraints:
-                    unique: true
-              - column:
-                  name: razorpay_payment_id
-                  type: VARCHAR(100)
-                  constraints:
-                    unique: true
-              - column:
-                  name: amount
-                  type: DECIMAL(10,2)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: status
-                  type: VARCHAR(20)
-                  defaultValue: PENDING
-              - column:
-                  name: payment_method
-                  type: VARCHAR(50)
-              - column:
-                  name: upi_id
-                  type: VARCHAR(100)
-              - column:
-                  name: payment_date
-                  type: TIMESTAMP
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column: { name: username, value: admin }
+              - column: { name: password, value: "$2a$10$XURPShQNCsLjp1ESc2laoObo9QZDhxz73hJPaEv7/cBha4pk0AgP6" }
+              - column: { name: email, value: admin@example.com }
+              - column: { name: role, value: ADMIN }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: premium_user }
+              - column: { name: password, value: "$2a$10$XURPShQNCsLjp1ESc2laoObo9QZDhxz73hJPaEv7/cBha4pk0AgP6" }
+              - column: { name: email, value: premium@example.com }
+              - column: { name: role, value: PREMIUM_USER }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: regular_user }
+              - column: { name: password, value: "$2a$10$XURPShQNCsLjp1ESc2laoObo9QZDhxz73hJPaEv7/cBha4pk0AgP6" }
+              - column: { name: email, value: user@example.com }
+              - column: { name: role, value: USER }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
 
   - changeSet:
-      id: 007-create-notifications-table
-      author: system
+      id: 6
+      author: ecommerce
       changes:
-        - createTable:
-            tableName: notifications
+        - insert:
+            tableName: products
             columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: user_id
-                  type: BIGINT
-                  constraints:
-                    nullable: false
-                    foreignKeyName: fk_notification_user
-                    references: users(id)
-              - column:
-                  name: title
-                  type: VARCHAR(200)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: message
-                  type: VARCHAR(4000)  # Changed from TEXT
-                  constraints:
-                    nullable: false
-              - column:
-                  name: type
-                  type: VARCHAR(50)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: level
-                  type: VARCHAR(20)
-                  defaultValue: INFO
-              - column:
-                  name: status
-                  type: VARCHAR(20)
-                  defaultValue: UNREAD
-              - column:
-                  name: metadata
-                  type: VARCHAR(4000)  # Changed from TEXT
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
-              - column:
-                  name: read_at
-                  type: TIMESTAMP
+              - column: { name: name, value: iPhone 15 Pro }
+              - column: { name: description, value: "Latest Apple smartphone with A17 Pro chip" }
+              - column: { name: price, valueNumeric: 999.99 }
+              - column: { name: quantity, valueNumeric: 50 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: MacBook Pro 16 }
+              - column: { name: description, value: "Professional laptop with M3 Max chip" }
+              - column: { name: price, valueNumeric: 2499.99 }
+              - column: { name: quantity, valueNumeric: 25 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: AirPods Pro }
+              - column: { name: description, value: "Wireless earbuds with noise cancellation" }
+              - column: { name: price, valueNumeric: 249.99 }
+              - column: { name: quantity, valueNumeric: 100 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: iPad Air }
+              - column: { name: description, value: "Thin and light tablet with M1 chip" }
+              - column: { name: price, valueNumeric: 599.99 }
+              - column: { name: quantity, valueNumeric: 75 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: Apple Watch Series 9 }
+              - column: { name: description, value: "Advanced smartwatch with health features" }
+              - column: { name: price, valueNumeric: 399.99 }
+              - column: { name: quantity, valueNumeric: 60 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }

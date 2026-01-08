@@ -1,16 +1,17 @@
 package com.example.ecommerce_app.dto;
 
-import com.example.ecommerce_app.enums.UserRole;
+import com.example.ecommerce_app.entity.User;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class AuthResponse {
+    
     private String token;
     private String username;
     private String email;
-    private UserRole role;
-    private Boolean isPremium;
+    private User.UserRole role;
+    private Long userId;
 }
