@@ -13,6 +13,8 @@ import com.example.ecommerce_app.dto.AuthRequest;
 import com.example.ecommerce_app.dto.AuthResponse;
 import com.example.ecommerce_app.dto.RegisterRequest;
 import com.example.ecommerce_app.entity.User;
+import com.example.ecommerce_app.security.CustomUserDetails;
+import com.example.ecommerce_app.security.CustomUserDetailsService;
 import com.example.ecommerce_app.security.JwtService;
 import com.example.ecommerce_app.service.UserService;
 
@@ -33,30 +35,33 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserService userService;
-    
+    private final CustomUserDetailsService customUSerDetailService;
     @PostMapping("/login")
-    @Operation(summary = "Authenticate user and get JWT token")
     public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
-        log.info("Login attempt for user: {}", request.getUsername());
-        
+
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
         );
-        
-        User user = (User) authentication.getPrincipal();
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        User user = userDetails.getUser();
+
         String jwt = jwtService.generateToken(user);
-        
-        log.info("User {} logged in successfully", user.getUsername());
-        
+
         return ResponseEntity.ok(new AuthResponse(
-            jwt,
-            user.getUsername(),
-            user.getEmail(),
-            user.getRole(),
-            user.getId()
+                jwt,
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getId()
         ));
     }
-    
+
     @PostMapping("/register")
     @Operation(
     	    summary = "Register new user",

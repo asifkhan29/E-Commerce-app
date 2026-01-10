@@ -26,7 +26,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-//    @CacheEvict(value = "products", allEntries = true)
+//  @CacheEvict(value = "products", allEntries = true)
     @Transactional
     public Product createProduct(Product product) {
         log.info("Creating prodoct: {}", product.getName());
@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-//    @Cacheable(value = "products", key = "#id")
+//  @Cacheable(value = "products", key = "#id")
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() ->
@@ -42,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-//    @CacheEvict(value = {"products", "productsByPage"}, key = "#id")
+//  @CacheEvict(value = {"products", "productsByPage"}, key = "#id")
     @Transactional
     public Product updateProduct(Long id, Product productDetails) {
         Product product = getProductById(id);
@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-//    @CacheEvict(value = {"products", "productsByPage"}, allEntries = true)
+//  @CacheEvict(value = {"products", "productsByPage"}, allEntries = true)
     @Transactional
     public void deleteProduct(Long id) {
         Product product = getProductById(id);
@@ -65,13 +65,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-//    @Cacheable("productsByPage")
+//  @Cacheable("productsByPage")
     public Page<Product> getAllProducts(Pageable pageable) {
         return productRepository.findByIsDeletedFalse(pageable);
     }
 
     @Override
-//    @Cacheable("productsSearch")
+//  @Cacheable("productsSearch")
     public Page<Product> searchProducts(
             String name,
             BigDecimal minPrice,

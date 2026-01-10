@@ -13,7 +13,7 @@ public class SwaggerConfig {
     
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI()
+         return new OpenAPI()
                 .info(new Info()
                         .title("E-Commerce API")
                         .version("1.0.0")
