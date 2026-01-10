@@ -14,7 +14,6 @@ import com.example.ecommerce_app.dto.AuthResponse;
 import com.example.ecommerce_app.dto.RegisterRequest;
 import com.example.ecommerce_app.entity.User;
 import com.example.ecommerce_app.security.CustomUserDetails;
-import com.example.ecommerce_app.security.CustomUserDetailsService;
 import com.example.ecommerce_app.security.JwtService;
 import com.example.ecommerce_app.service.UserService;
 
@@ -35,7 +34,6 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserService userService;
-    private final CustomUserDetailsService customUSerDetailService;
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
 

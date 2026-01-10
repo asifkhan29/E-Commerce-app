@@ -4,18 +4,16 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.ecommerce_app.dto.OrderItemResponse;
 import com.example.ecommerce_app.dto.OrderRequest;
 import com.example.ecommerce_app.dto.OrderResponse;
 import com.example.ecommerce_app.entity.Order;
-import com.example.ecommerce_app.entity.Order.OrderStatus;
 import com.example.ecommerce_app.entity.OrderItem;
 import com.example.ecommerce_app.entity.Product;
 import com.example.ecommerce_app.entity.User;
@@ -54,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setUser(user);
-        order.setStatus(Order.OrderStatus.PENDING);
+        order.setStatus(Order.OrderStatus.CONFIRMED);
 
         BigDecimal orderTotal = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
@@ -73,7 +71,6 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
-            orderItem.setDiscountApplied(order.getDiscountAmount());
             orderItem.setQuantity(itemRequest.getQuantity());
             orderItem.setUnitPrice(product.getPrice());
 
@@ -118,6 +115,19 @@ public class OrderServiceImpl implements OrderService {
                 .discountAmount(savedOrder.getDiscountAmount())
                 .finalAmount(savedOrder.getFinalAmount())
                 .createdAt(savedOrder.getCreatedAt())
+                .status(savedOrder.getStatus())
+                .items(
+                	    savedOrder.getOrderItems()
+                        .stream()
+                        .map(item -> OrderItemResponse.builder()
+                            .productId(item.getProduct().getId())
+                            .quantity(item.getQuantity())
+                            .totalAmount(item.getTotalPrice())
+                            .build()
+                        )
+                        .toList()
+                )
+
                 .username(savedOrder.getUser().getUsername())
                 .build();
     }

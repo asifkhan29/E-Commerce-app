@@ -39,10 +39,7 @@ public class OrderItem {
     
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
-    
-    @Column(name = "discount_applied", precision = 10, scale = 2)
-    private BigDecimal discountApplied = BigDecimal.ZERO;
-    
+      
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 }

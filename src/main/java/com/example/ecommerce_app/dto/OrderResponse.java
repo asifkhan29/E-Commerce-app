@@ -2,6 +2,7 @@ package com.example.ecommerce_app.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.example.ecommerce_app.entity.Order.OrderStatus;
 
@@ -18,6 +19,6 @@ public class OrderResponse {
     private BigDecimal finalAmount;
     private OrderStatus status;
     private LocalDateTime createdAt;
-   
+    private List<OrderItemResponse> items;
     private String username;
 }
