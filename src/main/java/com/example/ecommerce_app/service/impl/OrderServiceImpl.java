@@ -24,6 +24,7 @@ import com.example.ecommerce_app.repository.UserRepository;
 import com.example.ecommerce_app.service.OrderService;
 import com.example.ecommerce_app.service.ProductService;
 import com.example.ecommerce_app.service.strategy.DiscountCalculator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,8 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final UserRepository userRepository;
     private final DiscountCalculator discountCalculator;
+    private final ObjectMapper objectMapper;
+
 
     @Override
     @Transactional
@@ -133,26 +136,29 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-//    @Cacheable(value = "orders", key = "#id")
-    public Order getOrderById(Long id) {
-        log.debug("Fetching order with id: {}", id);
-        return orderRepository.findById(id)
+    public OrderResponse getOrderById(Long id) {
+
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Order not found with id: " + id));
+
+        return toResponse(order);
     }
 
     @Override
-//    @Cacheable(value = "userOrders", key = "#userId + '-' + #pageable.pageNumber + '-' + #pageable.sort")
-    public Page<Order> getOrdersByUser(Long userId, Pageable pageable) {
-        log.debug("Fetching orders for user: {}", userId);
-        return orderRepository.findByUserId(userId, pageable);
+    public Page<OrderResponse> getOrdersByUser(Long userId, Pageable pageable) {
+
+        return orderRepository.findByUserId(userId, pageable)
+                .map(this::toResponse);
     }
 
     @Override
-//    @CacheEvict(value = {"orders", "userOrders"}, allEntries = true)
     @Transactional
-    public Order cancelOrder(Long orderId) {
-        Order order = getOrderById(orderId);
+    public OrderResponse cancelOrder(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Order not found with id: " + orderId));
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -163,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (!order.getUser().getId().equals(user.getId())
                 && user.getRole() != User.UserRole.ADMIN) {
-            throw new SecurityException("Not authorized to cancel this order");
+            throw new SecurityException("Not authorized");
         }
 
         if (order.getStatus() == Order.OrderStatus.CONFIRMED) {
@@ -176,15 +182,41 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(Order.OrderStatus.CANCELLED);
-        Order updatedOrder = orderRepository.save(order);
+        Order saved = orderRepository.save(order);
 
-        log.info("Order canceled with id:{}", orderId);
-        return updatedOrder;
+        return toResponse(saved);
     }
 
     @Override
-    public Page<Order> getAllOrders(Pageable pageable) {
-        log.debug("Fetching all orders");
-        return orderRepository.findAll(pageable);
+    public Page<OrderResponse> getAllOrders(Pageable pageable) {
+
+        return orderRepository.findAll(pageable)
+                .map(this::toResponse);
     }
+
+    private OrderResponse toResponse(Order order) {
+
+        return OrderResponse.builder()
+                .id(order.getId())
+                .totalAmount(order.getOrderTotal())
+                .discountAmount(order.getDiscountAmount())
+                .finalAmount(order.getFinalAmount())
+                .status(order.getStatus())
+                .createdAt(order.getCreatedAt())
+                .username(order.getUser().getUsername())
+                .items(
+                        order.getOrderItems()
+                                .stream()
+                                .map(item -> OrderItemResponse.builder()
+                                        .productId(item.getProduct().getId())
+                                        .quantity(item.getQuantity())
+                                        .totalAmount(item.getTotalPrice())
+                                        .build()
+                                )
+                                .toList()
+                )
+                .build();
+    }
+
+
 }

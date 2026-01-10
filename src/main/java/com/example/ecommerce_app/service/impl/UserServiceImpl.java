@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 	        return userRepository.save(user);
 	    }
 	    
-	    @Cacheable(value = "users", key = "#id")
+//	    @Cacheable(value = "users", key = "#id")
 	    public User getUserById(Long id) {
 	        log.debug("Fetching user with id: {}", id);
 	        return userRepository.findById(id)

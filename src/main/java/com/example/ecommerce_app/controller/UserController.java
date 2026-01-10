@@ -41,14 +41,14 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'PREMIUM_USER', 'ADMIN')")
     @Operation(summary = "Get user by ID", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
     
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update user role (Admin only)", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<User> updateUserRole(@PathVariable Long id,
+    public ResponseEntity<User> updateUserRole(@PathVariable("id") Long id,
             @RequestParam User.UserRole role) {
         return ResponseEntity.ok(userService.updateUserRole(id, role));
     }

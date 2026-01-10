@@ -8,20 +8,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.ecommerce_app.entity.Product;
 import com.example.ecommerce_app.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -32,62 +25,104 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "Product Management", description = "APIs for managing products")
 public class ProductController {
-    
+
     private final ProductService productService;
-    
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Create a new product / ADMIN ONLY", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
+    @Operation(
+        summary = "Create a new product (ADMIN only)",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    public ResponseEntity<Product> createProduct(
+            @Valid
+            @RequestBody
+            @Parameter(description = "Product payload", required = true)
+            Product product
+    ) {
         return ResponseEntity.ok(productService.createProduct(product));
     }
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Get product by ID")
-    public ResponseEntity<Product> getProduct(@PathVariable Long id) {
+    public ResponseEntity<Product> getProduct(
+            @Parameter(description = "Product ID", example = "1", required = true)
+            @PathVariable("id") Long id
+    ) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
-    
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Update product / ADMIN ONLY", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, 
-        @Valid @RequestBody Product productDetails) {
+    @Operation(
+        summary = "Update product (ADMIN only)",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    public ResponseEntity<Product> updateProduct(
+            @Parameter(description = "Product ID", example = "1", required = true)
+            @PathVariable("id") Long id,
+
+            @Valid
+            @RequestBody
+            @Parameter(description = "Updated product payload", required = true)
+            Product productDetails
+    ) {
         return ResponseEntity.ok(productService.updateProduct(id, productDetails));
     }
-    
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete product / ADMIN ONLY", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    @Operation(
+        summary = "Delete product (ADMIN only)",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    public ResponseEntity<Void> deleteProduct(
+            @Parameter(description = "Product ID", example = "1", required = true)
+            @PathVariable("id") Long id
+    ) {
         productService.deleteProduct(id);
         return ResponseEntity.ok().build();
     }
-    
-    
-    @GetMapping
-@Operation(summary = "Get all products with pagination & sorting")
-public ResponseEntity<Page<Product>> getAllProducts(
-        @PageableDefault(size = 20,sort = "createdAt", direction = Sort.Direction.DESC
-        )
-        Pageable pageable) {
 
-    return ResponseEntity.ok(productService.getAllProducts(pageable));
-}
+    @GetMapping
+    @Operation(summary = "Get all products with pagination & sorting")
+    public ResponseEntity<Page<Product>> getAllProducts(
+            @Parameter(description = "Pagination and sorting parameters")
+            @PageableDefault(
+                size = 20,
+                sort = "createdAt",
+                direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(productService.getAllProducts(pageable));
+    }
 
     @GetMapping("/search")
     @Operation(summary = "Search products with filters, pagination & sorting")
-    public ResponseEntity<Page<Product>> searchProducts(@RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
-            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
-            @RequestParam(name = "inStock", required = false) Boolean inStock,
-            @PageableDefault(size = 20,sort = "createdAt",direction = Sort.Direction.DESC
-            )
-            Pageable pageable) {
+    public ResponseEntity<Page<Product>> searchProducts(
+            @Parameter(description = "Product name (partial match)", example = "Laptop")
+            @RequestParam(name = "name", required = false) String name,
 
+            @Parameter(description = "Minimum price", example = "1000")
+            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
+
+            @Parameter(description = "Maximum price", example = "5000")
+            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
+
+            @Parameter(description = "Filter by stock availability", example = "true")
+            @RequestParam(name = "inStock", required = false) Boolean inStock,
+
+            @Parameter(description = "Pagination and sorting parameters")
+            @PageableDefault(
+                size = 20,
+                sort = "createdAt",
+                direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
         return ResponseEntity.ok(
                 productService.searchProducts(name, minPrice, maxPrice, inStock, pageable)
         );
     }
-
 }

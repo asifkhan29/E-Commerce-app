@@ -13,7 +13,6 @@ import lombok.Data;
 @Builder
 public class OrderResponse {
     private Long id;
-    private String orderNumber;
     private BigDecimal totalAmount;
     private BigDecimal discountAmount;
     private BigDecimal finalAmount;

@@ -11,11 +11,11 @@ public interface OrderService {
 
     OrderResponse createOrder(OrderRequest orderRequest);
 
-    Order getOrderById(Long id);
+    OrderResponse getOrderById(Long id);
 
-    Page<Order> getOrdersByUser(Long userId, Pageable pageable);
+    Page<OrderResponse> getOrdersByUser(Long userId, Pageable pageable);
 
-    Order cancelOrder(Long orderId);
+    OrderResponse cancelOrder(Long orderId);
 
-    Page<Order> getAllOrders(Pageable pageable);
+    Page<OrderResponse> getAllOrders(Pageable pageable);
 }
